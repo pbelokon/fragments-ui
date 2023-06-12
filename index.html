@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>Fragments UI</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
     <script type="module" src="src/app.js"></script>
   </head>
   <body>
@@ -15,6 +15,43 @@
     </section>
     <section hidden id="user">
       <h2>Hello <span class="username"></span>!</h2>
+      <br />
+      <div class="form-fragments-container">
+        <div class="form-container">
+          <div class="form-box">
+            <h3>Enter Fragment Details</h3>
+            <form id="postForm">
+              <label for="type">Select a type:</label>
+              <select id="type" name="type">
+                <option value="text/plain">text/plain</option>
+              </select>
+              <label for="content">Enter content:</label>
+              <input type="text" id="content" name="content" />
+              <input id="submit" type="submit" value="Submit" />
+            </form>
+          </div>
+          <div>
+            <h3>Get Fragments</h3>
+            <form id="getFragmentsForm">
+              <button id="getFragments">Get All Fragments</button>
+            </form>
+          </div>
+          <div>
+            <h3>Get Fragment by ID</h3>
+            <form id="getFragmentByIdForm">
+              <label for="fragmentId">Enter fragment ID:</label>
+              <input type="text" id="fragmentId" name="fragmentId" />
+              <button id="getFragmentById">Get Fragment by ID</button>
+            </form>
+          </div>
+        </div>
+        <div class="fragments-container">
+          <div class="fragments-box">
+            <h3>Received Fragments</h3>
+            <ul id="fragmentsList"></ul>
+          </div>
+        </div>
+      </div>
     </section>
   </body>
 </html>

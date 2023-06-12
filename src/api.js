@@ -24,3 +24,40 @@ export async function getUserFragments(user) {
     console.error("Unable to call GET /v1/fragment", { err });
   }
 }
+
+export async function getUserFragment(user, id) {
+  console.log("Requesting user fragment data...");
+  try {
+    const res = await fetch(`${apiUrl}/v1/fragments/${id}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${user.idToken}`,
+      },
+    });
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    return await res.blob();
+  } catch (err) {
+    console.error("Unable to call GET /v1/fragment", { err });
+  }
+}
+
+export async function postUserFragments(user, fragment, type) {
+  try {
+    const res = await fetch(`${apiUrl}/v1/fragments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": type,
+        Authorization: `Bearer ${user.idToken}`,
+      },
+      body: type == "application/json" ? JSON.stringify(fragment) : fragment,
+    });
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    await res.json();
+  } catch (err) {
+    console.error("Unable to call POST /v1/fragment", { err });
+  }
+}
