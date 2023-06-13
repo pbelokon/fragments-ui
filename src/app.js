@@ -1,6 +1,6 @@
 // src/app.js
 
-import { Auth, getUser } from "./auth";
+import { getUser, login, logout } from "./auth";
 import { getUserFragments, getUserFragment, postUserFragments } from "./api";
 
 async function init() {
@@ -12,16 +12,8 @@ async function init() {
   const getFragmentByIdBtn = document.querySelector("#getFragmentById");
   const fragmentsList = document.querySelector("#fragmentsList");
   // Wire up event handlers to deal with login and logout.
-  loginBtn.onclick = () => {
-    // Sign-in via the Amazon Cognito Hosted UI (requires redirects), see:
-    // https://docs.amplify.aws/lib/auth/advanced/q/platform/js/#identity-pool-federation
-    Auth.federatedSignIn();
-  };
-  logoutBtn.onclick = () => {
-    // Sign-out of the Amazon Cognito Hosted UI (requires redirects), see:
-    // https://docs.amplify.aws/lib/auth/emailpassword/q/platform/js/#sign-out
-    Auth.signOut();
-  };
+  loginBtn.onclick = login;
+  logoutBtn.onclick = logout;
 
   getFragmentsBtn.onclick = async () => {
     const user = await getUser();
@@ -33,7 +25,7 @@ async function init() {
     const user = await getUser();
     const fragmentId = document.getElementById("fragmentId").value;
     const fragment = await getUserFragment(user, fragmentId);
-    displayFragments([fragment]);
+    await displayFragment(fragment);
   };
 
   // See if we're signed in (i.e., we'll have a `user` object)
@@ -63,15 +55,27 @@ function displayFragments(fragments) {
 
   fragmentsList.innerHTML = "";
 
-  fragments.forEach((fragment) => {
+  fragments.forEach(async (fragment) => {
     const li = document.createElement("li");
-    li.textContent = `ID: ${fragment.id} | Size: ${fragment.size} | Type: ${fragment.type}`;
+    li.textContent = `ID: ${fragment.id} Size: ${fragment.size} | Type: ${fragment.type}`;
     fragmentsList.appendChild(li);
   });
 }
 
-const form = document.getElementById("postForm");
-form.addEventListener("submit", submit);
+async function displayFragment(fragment) {
+  const fragmentsList = document.querySelector("#fragmentsList");
+
+  fragmentsList.innerHTML = "";
+
+  const li = document.createElement("li");
+  li.textContent = `Size: ${fragment.size} | Type: ${
+    fragment.type
+  } | Body: ${await fragment.text()}`;
+  fragmentsList.appendChild(li);
+}
+
+const postForm = document.getElementById("postForm");
+postForm.addEventListener("submit", submit);
 
 async function submit(event) {
   event.preventDefault();
@@ -87,6 +91,18 @@ async function submit(event) {
 
   postUserFragments(user, newFragment, type);
 }
+
+document
+  .getElementById("getFragmentByIdForm")
+  .addEventListener("submit", function (event) {
+    event.preventDefault();
+  });
+
+document
+  .getElementById("getFragmentsForm")
+  .addEventListener("submit", function (event) {
+    event.preventDefault();
+  });
 
 // Wait for the DOM to be ready, then start the app
 addEventListener("DOMContentLoaded", init);
