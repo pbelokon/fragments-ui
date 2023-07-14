@@ -6,7 +6,6 @@
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build index.html",
-    "lint": "eslint --config .eslintrc.js \"./src/**/*.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,7 +22,6 @@
   },
   "dependencies": {
     "aws-amplify": "^5.2.2",
-    "eslint": "^8.45.0",
     "parcel": "^2.8.3"
   }
 }
