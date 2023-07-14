@@ -130,5 +130,4 @@ dist
 .pnp.*
 
 # Parcel
-dist/
 .parcel-cache/
