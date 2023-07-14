@@ -25,6 +25,8 @@ WORKDIR /app
 
 COPY --from=dependencies /app /app
 
+COPY --chown=node:node ./src ./src
+
 COPY . .
 
 ENV NPM_CONFIG_LOGLEVEL=warn
