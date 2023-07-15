@@ -45,7 +45,10 @@ export async function postUserFragments(user, fragment, type) {
   try {
     const res = await fetch(`${apiUrl}/v1/fragments`, {
       method: "POST",
-      headers: user.authorizationHeaders(),
+      headers: {
+        "Content-Type": type,
+        Authorization: `Bearer ${user.idToken}`,
+      },
       body: type == "application/json" ? JSON.stringify(fragment) : fragment,
     });
     if (!res.ok) {
