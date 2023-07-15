@@ -56061,7 +56061,7 @@ parcelHelpers.defineInteropFlag(exports);
  */ parcelHelpers.export(exports, "getUserFragments", ()=>getUserFragments);
 parcelHelpers.export(exports, "getUserFragment", ()=>getUserFragment);
 parcelHelpers.export(exports, "postUserFragments", ()=>postUserFragments);
-const apiUrl = "http://localhost:8080";
+const apiUrl = "http://ec2-35-171-25-159.compute-1.amazonaws.com:8080";
 async function getUserFragments(user) {
     console.log("Requesting user fragments data...");
     try {
