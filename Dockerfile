@@ -25,7 +25,7 @@ WORKDIR /app
 
 COPY --from=dependencies /app /app
 
-COPY . .
+COPY . . 
 
 ENV NPM_CONFIG_LOGLEVEL=warn
 
