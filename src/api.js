@@ -9,6 +9,7 @@ const apiUrl = process.env.API_URL || "http://localhost:8080";
  * to have an `idToken` attached, so we can send that along with the request.
  */
 export async function getUserFragments(user) {
+  console.log("Requesting user fragments data...");
   try {
     const res = await fetch(`${apiUrl}/v1/fragments?expand=1`, {
       // Generate headers with the proper Authorization bearer token to pass
@@ -25,6 +26,7 @@ export async function getUserFragments(user) {
 }
 
 export async function getUserFragment(user, id) {
+  console.log("Requesting user fragment data...");
   try {
     const res = await fetch(`${apiUrl}/v1/fragments/${id}`, {
       method: "GET",
@@ -55,20 +57,5 @@ export async function postUserFragments(user, fragment, type) {
     await res.json();
   } catch (err) {
     console.error("Unable to call POST /v1/fragment", { err });
-  }
-}
-
-export async function deleteUserFragment(user, id) {
-  try {
-    const res = await fetch(`${apiUrl}/v1/fragments/${id}`, {
-      method: "DELETE",
-      headers: user.authorizationHeaders(),
-    });
-    if (!res.ok) {
-      throw new Error(`${res.status} ${res.statusText}`);
-    }
-    return await res.blob();
-  } catch (err) {
-    console.error("Unable to call DELETE /v1/fragment", { err });
   }
 }
