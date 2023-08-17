@@ -11,6 +11,7 @@ async function init() {
   const getFragmentsBtn = document.querySelector("#getFragments");
   const getFragmentByIdBtn = document.querySelector("#getFragmentById");
   const fragmentsList = document.querySelector("#fragmentsList");
+  const deleteFragment = document.querySelector("deleteFragment");
   // Wire up event handlers to deal with login and logout.
   loginBtn.onclick = login;
   logoutBtn.onclick = logout;
@@ -28,6 +29,14 @@ async function init() {
     await displayFragment(fragment);
   };
 
+  deleteFragment.onclick = async () => {
+    const user = await getUser();
+    const fragmentId = document.getElementById("deletefragmentId").value;
+    await deleteFragment(user, fragmentId);
+    const fragments = await getUserFragments(user);
+    displayFragments(fragments);
+  };
+
   // See if we're signed in (i.e., we'll have a `user` object)
   const user = await getUser();
   if (!user) {
@@ -35,9 +44,6 @@ async function init() {
     logoutBtn.disabled = true;
     return;
   }
-
-  // Log the user info for debugging purposes
-  console.log({ user });
 
   // Update the UI to welcome the user
   userSection.hidden = false;
@@ -100,6 +106,12 @@ document
 
 document
   .getElementById("getFragmentsForm")
+  .addEventListener("submit", function (event) {
+    event.preventDefault();
+  });
+
+document
+  .getElementById("deleteFragment")
   .addEventListener("submit", function (event) {
     event.preventDefault();
   });

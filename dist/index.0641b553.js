@@ -568,6 +568,7 @@ async function init() {
     const getFragmentsBtn = document.querySelector("#getFragments");
     const getFragmentByIdBtn = document.querySelector("#getFragmentById");
     const fragmentsList = document.querySelector("#fragmentsList");
+    const deleteFragment = document.querySelector("deleteFragment");
     // Wire up event handlers to deal with login and logout.
     loginBtn.onclick = (0, _auth.login);
     logoutBtn.onclick = (0, _auth.logout);
@@ -582,6 +583,13 @@ async function init() {
         const fragment = await (0, _api.getUserFragment)(user, fragmentId);
         await displayFragment(fragment);
     };
+    deleteFragment.onclick = async ()=>{
+        const user = await (0, _auth.getUser)();
+        const fragmentId = document.getElementById("deletefragmentId").value;
+        await deleteFragment(user, fragmentId);
+        const fragments = await (0, _api.getUserFragments)(user);
+        displayFragments(fragments);
+    };
     // See if we're signed in (i.e., we'll have a `user` object)
     const user = await (0, _auth.getUser)();
     if (!user) {
@@ -589,10 +597,6 @@ async function init() {
         logoutBtn.disabled = true;
         return;
     }
-    // Log the user info for debugging purposes
-    console.log({
-        user
-    });
     // Update the UI to welcome the user
     userSection.hidden = false;
     // Show the user's username
@@ -634,6 +638,9 @@ document.getElementById("getFragmentByIdForm").addEventListener("submit", functi
 document.getElementById("getFragmentsForm").addEventListener("submit", function(event) {
     event.preventDefault();
 });
+document.getElementById("deleteFragment").addEventListener("submit", function(event) {
+    event.preventDefault();
+});
 // Wait for the DOM to be ready, then start the app
 addEventListener("DOMContentLoaded", init);
 
@@ -648,84 +655,30 @@ var _awsAmplify = require("aws-amplify");
 let getUser;
 let login;
 let logout;
-// Configure our Auth object to use our Cognito User Pool
-(0, _awsAmplify.Amplify).configure({
-    Auth: {
-        // Amazon Region. We can hard-code this (we always use the us-east-1 region)
-        region: "us-east-1",
-        // Amazon Cognito User Pool ID
-        userPoolId: "us-east-1_8ZsKNYX4S",
-        // Amazon Cognito App Client ID (26-char alphanumeric string)
-        userPoolWebClientId: "5gemovidjht3j756g9gtm3auvt",
-        // Hosted UI configuration
-        oauth: {
-            // Amazon Hosted UI Domain
-            domain: "pbelokon-fragments.auth.us-east-1.amazoncognito.com",
-            // These scopes must match what you set in the User Pool for this App Client
-            // The default based on what we did above is: email, phone, openid. To see
-            // your app's OpenID Connect scopes, go to Amazon Cognito in the AWS Console
-            // then: Amazon Cognito > User pools > {your user pool} > App client > {your client}
-            // and look in the "Hosted UI" section under "OpenID Connect scopes".
-            scope: [
-                "email",
-                "phone",
-                "openid"
-            ],
-            // NOTE: these must match what you have specified in the Hosted UI
-            // app settings for Callback and Redirect URLs (e.g., no trailing slash).
-            redirectSignIn: "http://localhost:1234",
-            redirectSignOut: "http://localhost:1234",
-            // We're using the Access Code Grant flow (i.e., `code`)
-            responseType: "code"
-        }
-    }
-});
-/**
-   * Get the authenticated user
-   * @returns Promise<user>
-   */ getUser = async function() {
-    try {
-        // Get the user's info, see:
-        // https://docs.amplify.aws/lib/auth/advanced/q/platform/js/#identity-pool-federation
-        const currentAuthenticatedUser = await (0, _awsAmplify.Auth).currentAuthenticatedUser();
-        // Get the user's username
-        const username = currentAuthenticatedUser.username;
-        // If that didn't throw, we have a user object, and the user is authenticated
-        console.log("The user is authenticated", username);
-        // Get the user's Identity Token, which we'll use later with our
-        // microservice. See discussion of various tokens:
-        // https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-with-identity-providers.html
-        const idToken = currentAuthenticatedUser.signInUserSession.idToken.jwtToken;
-        const accessToken = currentAuthenticatedUser.signInUserSession.accessToken.jwtToken;
-        // Return a simplified "user" object
-        return {
-            username,
-            idToken,
-            accessToken,
-            // Include a simple method to generate headers with our Authorization info
-            authorizationHeaders: (type = "application/json")=>{
+{
+    let userCredentials = "";
+    getUser = async function() {
+        if (userCredentials) return {
+            username: "user1@email.com",
+            authorizationHeaders: ()=>{
                 const headers = {};
-                headers["Authorization"] = `Bearer ${idToken}`;
+                headers["Authorization"] = `Basic ${btoa(userCredentials)}`;
                 return headers;
             }
         };
-    } catch (err) {
-        console.log(err);
-        // Unable to get user, return `null` instead
         return null;
-    }
-};
-login = function() {
-    // Sign-in via the Amazon Cognito Hosted UI (requires redirects), see:
-    // https://docs.amplify.aws/lib/auth/advanced/q/platform/js/#identity-pool-federation
-    (0, _awsAmplify.Auth).federatedSignIn();
-};
-logout = function() {
-    // Sign-out of the Amazon Cognito Hosted UI (requires redirects), see:
-    // https://docs.amplify.aws/lib/auth/emailpassword/q/platform/js/#sign-out
-    (0, _awsAmplify.Auth).signOut();
-};
-
+    };
+    login = function() {
+        userCredentials = "user1@email.com:password1";
+        const userSection = document.querySelector("#user");
+        userSection.hidden = false;
+    };
+    logout = function() {
+        userCredentials = "";
+        const userSection = document.querySelector("#user");
+        userSection.hidden = true;
+    };
+}
 },{"aws-amplify":"ctfB3","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ctfB3":[function(require,module,exports) {
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
@@ -56061,9 +56014,9 @@ parcelHelpers.defineInteropFlag(exports);
  */ parcelHelpers.export(exports, "getUserFragments", ()=>getUserFragments);
 parcelHelpers.export(exports, "getUserFragment", ()=>getUserFragment);
 parcelHelpers.export(exports, "postUserFragments", ()=>postUserFragments);
-const apiUrl = "http://ec2co-ecsel-4x7dzwptzw07-10277482.us-east-1.elb.amazonaws.com:8080";
+parcelHelpers.export(exports, "deleteUserFragment", ()=>deleteUserFragment);
+const apiUrl = "http://localhost:8080";
 async function getUserFragments(user) {
-    console.log("Requesting user fragments data...");
     try {
         const res = await fetch(`${apiUrl}/v1/fragments?expand=1`, {
             // Generate headers with the proper Authorization bearer token to pass
@@ -56079,7 +56032,6 @@ async function getUserFragments(user) {
     }
 }
 async function getUserFragment(user, id) {
-    console.log("Requesting user fragment data...");
     try {
         const res = await fetch(`${apiUrl}/v1/fragments/${id}`, {
             method: "GET",
@@ -56107,6 +56059,20 @@ async function postUserFragments(user, fragment, type) {
         await res.json();
     } catch (err) {
         console.error("Unable to call POST /v1/fragment", {
+            err
+        });
+    }
+}
+async function deleteUserFragment(user, id) {
+    try {
+        const res = await fetch(`${apiUrl}/v1/fragments/${id}`, {
+            method: "DELETE",
+            headers: user.authorizationHeaders()
+        });
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        return await res.blob();
+    } catch (err) {
+        console.error("Unable to call DELETE /v1/fragment", {
             err
         });
     }
