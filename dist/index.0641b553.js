@@ -569,6 +569,7 @@ async function init() {
     const getFragmentByIdBtn = document.querySelector("#getFragmentById");
     const fragmentsList = document.querySelector("#fragmentsList");
     const deleteFragment = document.querySelector("#deleteFragmentById");
+    const updateFragment = document.querySelector("#updateFragmentById");
     // Wire up event handlers to deal with login and logout.
     loginBtn.onclick = (0, _auth.login);
     logoutBtn.onclick = (0, _auth.logout);
@@ -587,6 +588,15 @@ async function init() {
         const user = await (0, _auth.getUser)();
         const fragmentId = document.getElementById("deleteId").value;
         await (0, _api.deleteUserFragment)(user, fragmentId);
+        const fragments = await (0, _api.getUserFragments)(user);
+        displayFragments(fragments);
+    };
+    updateFragment.onclick = async ()=>{
+        const user = await (0, _auth.getUser)();
+        const fragmentId = document.getElementById("updateId").value;
+        const fragmentData = document.getElementById("updateData").value;
+        const fragment = await (0, _api.getUserFragment)(user, fragmentId);
+        await (0, _api.updateUserFragments)(user, fragmentData, fragmentId, fragment.type);
         const fragments = await (0, _api.getUserFragments)(user);
         displayFragments(fragments);
     };
@@ -643,6 +653,9 @@ document.getElementById("getFragmentsForm").addEventListener("submit", function(
     event.preventDefault();
 });
 document.getElementById("deleteFragmentByIdForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+});
+document.getElementById("updateFragmentByIdForm").addEventListener("submit", function(event) {
     event.preventDefault();
 });
 // Wait for the DOM to be ready, then start the app
@@ -56019,6 +56032,7 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getUserFragment", ()=>getUserFragment);
 parcelHelpers.export(exports, "postUserFragments", ()=>postUserFragments);
 parcelHelpers.export(exports, "deleteUserFragment", ()=>deleteUserFragment);
+parcelHelpers.export(exports, "updateUserFragments", ()=>updateUserFragments);
 const apiUrl = "http://localhost:8080";
 async function getUserFragments(user) {
     try {
@@ -56077,6 +56091,24 @@ async function deleteUserFragment(user, id) {
         return await res.json();
     } catch (err) {
         console.error("Unable to call DELETE /v1/fragment", {
+            err
+        });
+    }
+}
+async function updateUserFragments(user, fragment, id, type) {
+    try {
+        const res = await fetch(`${apiUrl}/v1/fragments/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": type,
+                Authorization: `Bearer ${user.idToken}`
+            },
+            body: fragment
+        });
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        await res.json();
+    } catch (err) {
+        console.error("Unable to call PUT /v1/fragment", {
             err
         });
     }

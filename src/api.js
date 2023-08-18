@@ -72,3 +72,23 @@ export async function deleteUserFragment(user, id) {
     console.error("Unable to call DELETE /v1/fragment", { err });
   }
 }
+
+export async function updateUserFragments(user, fragment, id, type) {
+  try {
+    const res = await fetch(`${apiUrl}/v1/fragments/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": type,
+        Authorization: `Bearer ${user.idToken}`,
+      },
+
+      body: fragment,
+    });
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    await res.json();
+  } catch (err) {
+    console.error("Unable to call PUT /v1/fragment", { err });
+  }
+}

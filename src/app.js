@@ -6,6 +6,7 @@ import {
   getUserFragment,
   postUserFragments,
   deleteUserFragment,
+  updateUserFragments,
 } from "./api";
 
 async function init() {
@@ -17,6 +18,7 @@ async function init() {
   const getFragmentByIdBtn = document.querySelector("#getFragmentById");
   const fragmentsList = document.querySelector("#fragmentsList");
   const deleteFragment = document.querySelector("#deleteFragmentById");
+  const updateFragment = document.querySelector("#updateFragmentById");
   // Wire up event handlers to deal with login and logout.
   loginBtn.onclick = login;
   logoutBtn.onclick = logout;
@@ -38,6 +40,16 @@ async function init() {
     const user = await getUser();
     const fragmentId = document.getElementById("deleteId").value;
     await deleteUserFragment(user, fragmentId);
+    const fragments = await getUserFragments(user);
+    displayFragments(fragments);
+  };
+
+  updateFragment.onclick = async () => {
+    const user = await getUser();
+    const fragmentId = document.getElementById("updateId").value;
+    const fragmentData = document.getElementById("updateData").value;
+    const fragment = await getUserFragment(user, fragmentId);
+    await updateUserFragments(user, fragmentData, fragmentId, fragment.type);
     const fragments = await getUserFragments(user);
     displayFragments(fragments);
   };
@@ -120,6 +132,12 @@ document
 
 document
   .getElementById("deleteFragmentByIdForm")
+  .addEventListener("submit", function (event) {
+    event.preventDefault();
+  });
+
+document
+  .getElementById("updateFragmentByIdForm")
   .addEventListener("submit", function (event) {
     event.preventDefault();
   });
